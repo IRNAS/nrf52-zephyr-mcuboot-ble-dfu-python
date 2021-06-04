@@ -70,7 +70,7 @@ fi
 if cat ~/.bashrc | grep -Fq "mcumgr"
 then
     echo "mcumgr already on \$PATH"
-    else
+else
     mkdir -p $GOPATH/src/mynewt.apache.org/
 
     echo "Cloning mcumgr CLI tool"

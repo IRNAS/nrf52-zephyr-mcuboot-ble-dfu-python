@@ -3,6 +3,7 @@ import argparse
 import asyncio
 import time
 import sys
+import os
 
 from PyInquirer import prompt, style_from_dict, Token
 from bleak import discover
@@ -47,7 +48,7 @@ def get_ble_devices(loop):
     return device_list
 
 
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S', level=logging.DEBUG)
 
 parser = argparse.ArgumentParser(description="python3 example.py -f <hexfile> -d <dfu_target_name>")
 parser.add_argument('-d', '--device', action='store', dest="device", default=None, help='DFU target name.')
@@ -61,7 +62,11 @@ if args.device is not None:
     device = args.device
 
 if args.hexfile is not None:
-    hexfile = args.hexfile
+    if os.path.exists(args.hexfile):
+        hexfile = args.hexfile
+    else:
+        logging.warning("Specified hexfile not found! Exiting.")
+        sys.exit(0)
 else:
     logging.warning("Hexfile is not specified! Can not perform Secure DFU!")
     sys.exit(0)

@@ -33,7 +33,7 @@ class MCUBootDFU():
         """Cleanup"""
         # NOTE: it appears we need to restart the hci0 interface each time we perform the dfu
         # TODO: figure out why?
-        process = subprocess.Popen("hciconfig hci0 reset".split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        process = subprocess.Popen("hciconfig hci0 reset".split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         process.kill()
 
@@ -116,7 +116,7 @@ class MCUBootDFU():
     def list_device_images(self, device_name):
         """Return list of device images"""
         image_list = run_command(device_name, "image list")
-        # print(f"Image list: {image_list}")
+        print(f"Image list: {image_list}")
         listed_images = None
         if image_list is not None:  # if image list succeeded continue
             listed_images = self.get_image_list_json(image_list)
@@ -145,6 +145,7 @@ class MCUBootDFU():
             while rc < RC_COUNT:
                 # list images on device
                 listed_images = self.list_device_images(self.device_name)
+                # print(f"Images found on device: {listed_images}")
                 if listed_images is None:
                     rc += 1
                 else:
