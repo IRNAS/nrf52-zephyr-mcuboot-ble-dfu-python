@@ -9,8 +9,8 @@ import subprocess
 import json
 import time
 
-from src.analyze_mcuboot_img import get_image_hash
-from src.util import run_command
+from zephyr_mcuboot_dfu.src.analyze_mcuboot_img import get_image_hash
+from zephyr_mcuboot_dfu.src.util import run_command
 
 RC_COUNT = 5
 
@@ -40,10 +40,8 @@ class MCUBootDFU():
 
     def _parse_value(self, attribute, line, delimiter):
         """Parse value from string, select value with attribute"""
-        print(line)
         if attribute in line:
             split_line = line.split(delimiter)
-            print(f"Split line: {split_line}")
             if len(split_line) > 1:
                 self.image_data_dict[attribute] = split_line[1].strip()
         else:
@@ -51,8 +49,6 @@ class MCUBootDFU():
 
     def get_image_list_json(self, image_list_string):
         """Return json object with image list parameters"""
-        # image_list_string = image_list_bytes.decode("utf-8")
-        # print(image_list_string)
 
         # sanitize string and split it into array
         split = image_list_string.replace("  ", "").split("\n")
@@ -97,8 +93,6 @@ class MCUBootDFU():
 
                 images.append(self.image_data_dict)  # append found image to image list
 
-                print(images)
-
                 # reset dict
                 self.image_data_dict = {
                     "image": "",
@@ -116,11 +110,9 @@ class MCUBootDFU():
     def list_device_images(self, device_name):
         """Return list of device images"""
         image_list = run_command(device_name, "image list")
-        print(f"Image list: {image_list}")
         listed_images = None
         if image_list is not None:  # if image list succeeded continue
             listed_images = self.get_image_list_json(image_list)
-            # print(listed_images)
         return listed_images
 
     def get_image_data(self, listed_images, file_hash):
@@ -138,7 +130,7 @@ class MCUBootDFU():
         """Perform mcuboot dfu"""
         # 0. get hash of selected image
         file_hash = get_image_hash(self.image_path)
-        logging.debug(f"SHA256 of file to upload: {file_hash}")
+        logging.info(f"SHA256 of file to upload: {file_hash}")
 
         while True:
             rc = 0
@@ -163,7 +155,6 @@ class MCUBootDFU():
             image_exists, image_data = self.get_image_data(listed_images, file_hash)
             logging.info(f"Image exists: {image_exists}, data: {image_data}")
 
-            # fork:
             # if image already on device 
             if image_exists:
                 logging.info("Image exists on device!")
